@@ -6,17 +6,26 @@ import (
 	"context"
 
 	"github.com/amar-jay/go-api-boilerplate/gql/gen"
+	"github.com/amar-jay/go-api-boilerplate/services/authservice"
+	"github.com/amar-jay/go-api-boilerplate/services/emailservice"
+	"github.com/amar-jay/go-api-boilerplate/services/userservice"
 )
 
-type Resolver struct{}
+type Resolver struct{
+	AuthService authservice.AuthService
+	UserService userservice.UserService
+	EmailService emailservice.EmailService
+}
+
+
 
 // // foo
-func (r *mutationResolver) CreateTodo(ctx context.Context, input gen.NewTodo) (*gen.Todo, error) {
+func (r *queryResolver) User(ctx context.Context, id int) (*gen.User, error) {
 	panic("not implemented")
 }
 
 // // foo
-func (r *queryResolver) Todos(ctx context.Context) ([]*gen.Todo, error) {
+func (r *queryResolver) UserProfile(ctx context.Context) (*gen.User, error) {
 	panic("not implemented")
 }
 
