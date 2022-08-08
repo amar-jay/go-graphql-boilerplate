@@ -1,0 +1,37 @@
+# Where are all the schema files located? globs are supported eg  src/**/*.graphqls
+schema:
+  - gql/*.graphql
+
+exec:
+  filename: gql/gen/generated.go
+  package: gen
+
+model:
+  filename: gql/gen/models_gen.go
+  package: gen 
+
+resolver: 
+  filename: gql/resolver.go
+  type: Resolver
+  package: gql
+
+autobind: []
+
+# resolver:
+#   layout: follow-schema
+#   dir: graph
+#   package: graph
+
+
+# models:
+#   ID:
+#     model:
+#       - github.com/99designs/gqlgen/graphql.ID
+#       - github.com/99designs/gqlgen/graphql.Int
+#       - github.com/99designs/gqlgen/graphql.Int64
+#       - github.com/99designs/gqlgen/graphql.Int32
+#   Int:
+#     model:
+#       - github.com/99designs/gqlgen/graphql.Int
+#       - github.com/99designs/gqlgen/graphql.Int64
+#       - github.com/99designs/gqlgen/graphql.Int32
