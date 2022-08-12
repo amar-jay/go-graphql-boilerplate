@@ -19,16 +19,6 @@ type Resolver struct{
 
 
 
-// // foo
-func (r *queryResolver) User(ctx context.Context, id int) (*gen.User, error) {
-	panic("not implemented")
-}
-
-// // foo
-func (r *queryResolver) UserProfile(ctx context.Context) (*gen.User, error) {
-	panic("not implemented")
-}
-
 // Mutation returns gen.MutationResolver implementation.
 func (r *Resolver) Mutation() gen.MutationResolver { return &mutationResolver{r} }
 
