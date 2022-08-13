@@ -16,5 +16,4 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - run: go mod tidy
-      - name: build
       - run: go build -v
