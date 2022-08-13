@@ -1,7 +1,7 @@
 package emailservice
 
 import (
-	"github.com/amar-jay/go_api_boilerplate/infra/mailgunclient"
+	// "github.com/amar-jay/go_api_boilerplate/infra/mailgunclient"
 )
 type EmailService interface {
 	Welcome(toEmail string) error
