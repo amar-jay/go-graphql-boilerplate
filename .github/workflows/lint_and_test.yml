@@ -1,0 +1,20 @@
+name: build_and_install_dependencies
+
+on: [push]
+
+jobs:
+  tidy:
+    name: Go ${{ matrix.go }} Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['1.19', '1.15', '1.14']
+    steps:
+      - uses: actions/checkout@v3
+      - name: Go setup
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go }}
+      - run: go mod tidy
+      - name: build
+      - run: go build -v
