@@ -5,13 +5,14 @@ import (
 	
 	"gopkg.in/dgrijalva/jwt-go.v3"
 	"github.com/amar-jay/go-api-boilerplate/domain/user"
+	"github.com/amar-jay/go-api-boilerplate/middleware"
 )
 
 // AuthService interface
 type AuthService interface {
 	// TODO: change userid to user.User
-	IssueToken(userID int) (string, error)
-	ParseToken(token string) (*Claims, error)
+	IssueToken(userID user.User) (string, error)
+	ParseToken(token string) (*middleware.Claim, error)
 }
 
 // Private authService struct
@@ -19,15 +20,7 @@ type authService struct {
 	jwtSecret string
 }
 
-// Claims struct represents the claims in a JWT
-type Claims struct {
-	Email string `json:"email"`
-	ID    int    `json:"id"`
-	jwt.StandardClaims
-
-}
-
-func NewAuthService(jwtSecret string) *authService {
+func NewAuthService(jwtSecret string) AuthService {
 	// TODO: remember to cross check return type
 	return &authService{
 		jwtSecret: jwtSecret,
@@ -39,7 +32,7 @@ func (auth *authService) IssueToken(u user.User) (string, error) {
 	currTime := time.Now()
 	expireTime := currTime.Add(24 * time.Hour) // after 24 hours
 
-	claims := Claims{
+	claims := middleware.Claim{
 		u.Email,
 		int(u.ID),
 		jwt.StandardClaims{
@@ -53,17 +46,17 @@ func (auth *authService) IssueToken(u user.User) (string, error) {
 
 
 // parse token
-func (auth *authService) ParseToken(token string) (*Claims, error) {
+func (auth *authService) ParseToken(token string) (*middleware.Claim, error) {
 	tokenClaims, err := jwt.ParseWithClaims(
 	token,
-	&Claims{},
+	&middleware.Claim{},
 	func(token *jwt.Token) (interface{}, error) {
 		return []byte(auth.jwtSecret), nil
 	},
 )
 
 	if tokenClaims != nil {
-		claims, ok := tokenClaims.Claims.(*Claims)
+		claims, ok := tokenClaims.Claims.(*middleware.Claim)
 		if ok && tokenClaims.Valid {
 			return claims, nil
 		}

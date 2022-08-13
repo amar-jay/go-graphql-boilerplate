@@ -8,14 +8,20 @@ import (
 	//"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/99designs/gqlgen/handler"
 	"github.com/gin-gonic/gin"
+
 	//"github.com/jinzhu/gorm"
-	"gorm.io/gorm"
 	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"gorm.io/gorm"
 
 	"github.com/amar-jay/go-api-boilerplate/config"
 	"github.com/amar-jay/go-api-boilerplate/domain/user"
+	"github.com/amar-jay/go-api-boilerplate/gql"
+	"github.com/amar-jay/go-api-boilerplate/middleware"
+	"github.com/amar-jay/go-api-boilerplate/services/authservice"
+	"github.com/amar-jay/go-api-boilerplate/services/emailservice"
+	"github.com/amar-jay/go-api-boilerplate/services/userservice"
 )
 
 const defaultPort = "8080"
@@ -29,7 +35,7 @@ func main() {
 	// swagger url - http://localhost:8080/swagger/index.html
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	 //srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+
 
 	// load env file
 	if err := godotenv.Load(); err != nil {
@@ -44,7 +50,6 @@ func main() {
 
 	if err != nil {
 		panic(err)
-		// log.Fatal("Error in connecting to database")
 	}
 
 	// Migrate the schema
@@ -58,13 +63,26 @@ func main() {
 		// worthy parts of that header.
 		// Otherwise, simply return the direct client IP
 		fmt.Printf("ClientIP: %s\n", c.ClientIP())
+		c.JSON(http.StatusOK, gin.H{"Amar": "Jay", "clientIP": c.ClientIP()})
 	})
+
 	// Testing the database
 	router.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
+
+
+	userService  := userservice.NewUserService()
+	authService := authservice.NewAuthService(config.JWTSecret)
+	emailService :=  emailservice.NewEmailService()
+
+	// srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 	playground :=handler.Playground("GraphQL playground", "/query")
 	router.GET("/graphql", func (c *gin.Context) { playground.ServeHTTP(c.Writer, c.Request) })
+	router.POST("/query", func (c *gin.Context) { 
+		middleware.SetUserContext(config.JWTSecret)
+		gql.GraphQLHandler(userService, authService, emailService)
+		playground.ServeHTTP(c.Writer, c.Request) })
 	// http.Handle("/query", srv)
 
 	// log.Printf("connect to http://loc alhost:%s/ for GraphQL playground", port)

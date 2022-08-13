@@ -4,6 +4,7 @@ import (
 	"context"
 	// "errors"
 	
+	"github.com/amar-jay/go-api-boilerplate/gql/gen"
 )
 
 

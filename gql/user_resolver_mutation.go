@@ -3,7 +3,7 @@ package gql
 import (
 	"context"
 	// "errors"
-	
+	"github.com/amar-jay/go-api-boilerplate/gql/gen"
 )
 
 // // foo
