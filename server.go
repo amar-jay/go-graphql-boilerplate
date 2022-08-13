@@ -7,6 +7,7 @@ import (
 
 	//"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/99designs/gqlgen/handler"
+	"github.com/Massad/gin-boilerplate/controllers"
 	"github.com/gin-gonic/gin"
 
 	//"github.com/jinzhu/gorm"
@@ -16,6 +17,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/amar-jay/go-api-boilerplate/config"
+	"github.com/amar-jay/go-api-boilerplate/controllers"
 	"github.com/amar-jay/go-api-boilerplate/domain/user"
 	"github.com/amar-jay/go-api-boilerplate/gql"
 	"github.com/amar-jay/go-api-boilerplate/middleware"
@@ -71,10 +73,24 @@ func main() {
 		c.String(http.StatusOK, "pong")
 	})
 
+	/**
+	*  ----- Services -----
+	*/
 
-	userService  := userservice.NewUserService()
+	userService  := userservice.NewUserService("pepper")
 	authService := authservice.NewAuthService(config.JWTSecret)
 	emailService :=  emailservice.NewEmailService()
+
+	/**
+	* ----- Controllers -----
+	*/
+
+
+	userController := controllers.NewUserController(userService, authService, emailService)
+
+	/**
+	*  ----- Routing -----
+	*/
 
 	// srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 	playground :=handler.Playground("GraphQL playground", "/query")
@@ -84,6 +100,19 @@ func main() {
 		gql.GraphQLHandler(userService, authService, emailService)
 		playground.ServeHTTP(c.Writer, c.Request) })
 	// http.Handle("/query", srv)
+
+	api := router.Group("/api")
+
+	api.POST("/register", userController.Register)
+	api.POST("/login",  userController.Login)
+	api.POST("/forgot-password", userController.ForgotPassword)
+	api.POST("/update-password", userController.ResetPassword)
+
+	user := api.Group("/user")
+
+	user.GET("/:id", userController.GetUserById)
+
+	// TODO: create accounts and profiles
 
 	// log.Printf("connect to http://loc alhost:%s/ for GraphQL playground", port)
 	port := fmt.Sprintf(":%d", config.Port)
