@@ -9,7 +9,7 @@ type Response struct {
   Data  interface{}  `json:"data"`
 }
 
-
+// send an http response
 func HttpResponse(ctx *gin.Context, code int, msg string, data interface{}) {
   ctx.JSON(
     code, Response{
@@ -18,5 +18,6 @@ func HttpResponse(ctx *gin.Context, code int, msg string, data interface{}) {
       Data: data,
     },
   )
+  return
 
 }

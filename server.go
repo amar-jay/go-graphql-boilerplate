@@ -7,7 +7,6 @@ import (
 
 	//"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/99designs/gqlgen/handler"
-	"github.com/Massad/gin-boilerplate/controllers"
 	"github.com/gin-gonic/gin"
 
 	//"github.com/jinzhu/gorm"
@@ -16,11 +15,15 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
 
+	"github.com/amar-jay/go-api-boilerplate/common/hmachash"
+	"github.com/amar-jay/go-api-boilerplate/common/randomstring"
 	"github.com/amar-jay/go-api-boilerplate/config"
 	"github.com/amar-jay/go-api-boilerplate/controllers"
 	"github.com/amar-jay/go-api-boilerplate/domain/user"
 	"github.com/amar-jay/go-api-boilerplate/gql"
 	"github.com/amar-jay/go-api-boilerplate/middleware"
+	"github.com/amar-jay/go-api-boilerplate/repositories/password_reset"
+	"github.com/amar-jay/go-api-boilerplate/repositories/user_repo"
 	"github.com/amar-jay/go-api-boilerplate/services/authservice"
 	"github.com/amar-jay/go-api-boilerplate/services/emailservice"
 	"github.com/amar-jay/go-api-boilerplate/services/userservice"
@@ -32,7 +35,7 @@ var (
 )
 func main() {
 	fmt.Println("Starting server...")
-	router.SetTrustedProxies([]string{"192.168.1.2"})
+	router.SetTrustedProxies([]string{"192.168.1.2", "::1"})
 
 	// swagger url - http://localhost:8080/swagger/index.html
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -76,8 +79,11 @@ func main() {
 	/**
 	*  ----- Services -----
 	*/
-
-	userService  := userservice.NewUserService("pepper")
+	userrepo  := user_repo.NewUserRepo(db)
+	pswdrepo := password_reset.CreatePasswordReserRepo(db)
+	randomstr := randomstring.CreateRandomString()
+	hash := hmachash.NewHMAC("dumb ass")
+	userService  := userservice.NewUserService(userrepo, pswdrepo, randomstr, hash, "pepper")
 	authService := authservice.NewAuthService(config.JWTSecret)
 	emailService :=  emailservice.NewEmailService()
 
@@ -101,16 +107,16 @@ func main() {
 		playground.ServeHTTP(c.Writer, c.Request) })
 	// http.Handle("/query", srv)
 
-	api := router.Group("/api")
+	api := router.Group("/auth")
 
 	api.POST("/register", userController.Register)
 	api.POST("/login",  userController.Login)
 	api.POST("/forgot-password", userController.ForgotPassword)
 	api.POST("/update-password", userController.ResetPassword)
 
-	user := api.Group("/user")
+	//user := api.Group("/user")
 
-	user.GET("/:id", userController.GetUserById)
+	//user.GET("/:id", userController.GetUserById)
 
 	// TODO: create accounts and profiles
 
