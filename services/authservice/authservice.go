@@ -5,14 +5,23 @@ import (
 	
 	"gopkg.in/dgrijalva/jwt-go.v3"
 	"github.com/amar-jay/go-api-boilerplate/domain/user"
-	"github.com/amar-jay/go-api-boilerplate/middleware"
 )
+
+// resolving circular import was done by repetition of Claim
+// Claims struct represents the claims in a JWT
+type Claim struct {
+	Email string `json:"email"`
+	ID    int    `json:"id"`
+	jwt.StandardClaims
+
+}
+
 
 // AuthService interface
 type AuthService interface {
 	// TODO: change userid to user.User
 	IssueToken(userID user.User) (string, error)
-	ParseToken(token string) (*middleware.Claim, error)
+	ParseToken(token string) (*Claim, error)
 }
 
 // Private authService struct
@@ -32,7 +41,7 @@ func (auth *authService) IssueToken(u user.User) (string, error) {
 	currTime := time.Now()
 	expireTime := currTime.Add(24 * time.Hour) // after 24 hours
 
-	claims := middleware.Claim{
+	claims := Claim{
 		u.Email,
 		int(u.ID),
 		jwt.StandardClaims{
@@ -46,17 +55,17 @@ func (auth *authService) IssueToken(u user.User) (string, error) {
 
 
 // parse token
-func (auth *authService) ParseToken(token string) (*middleware.Claim, error) {
+func (auth *authService) ParseToken(token string) (*Claim, error) {
 	tokenClaims, err := jwt.ParseWithClaims(
 	token,
-	&middleware.Claim{},
+	&Claim{},
 	func(token *jwt.Token) (interface{}, error) {
 		return []byte(auth.jwtSecret), nil
 	},
 )
 
 	if tokenClaims != nil {
-		claims, ok := tokenClaims.Claims.(*middleware.Claim)
+		claims, ok := tokenClaims.Claims.(*Claim)
 		if ok && tokenClaims.Valid {
 			return claims, nil
 		}

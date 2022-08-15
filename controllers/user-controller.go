@@ -72,7 +72,7 @@ func (user *userController) Login(ctx *gin.Context) {
 }
 
 func (userctrl *userController) Register(ctx *gin.Context) {
-  // TODO: read the user input
+  //  read the user input
   var userInput UserInput
   if err := ctx.ShouldBindJSON(&userInput); err != nil {
 
@@ -81,19 +81,19 @@ func (userctrl *userController) Register(ctx *gin.Context) {
   } 
 
   u := userctrl.inputToUser(userInput)
-  // TODO: create a user
 
+  // create a user
   if err := userctrl.us.Register(&u); err != nil {
     
-    ctx.JSON(http.StatusInternalServerError, err.Error())
+    HttpResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
     return
   }
-  //err := fmt.Errorf("Not implemented")
-  //ctx.AbortWithError(http.StatusBadRequest, err)
+
   // TODO: send a welcome message
-  // TODO: login the user
+
+  //  login the user
   if err := userctrl.login(ctx, &u); err != nil {
-    ctx.JSON(http.StatusInternalServerError, err.Error())
+    HttpResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
     return
   }
 }
@@ -112,8 +112,23 @@ func (user *userController) ForgotPassword(ctx *gin.Context) {
     fmt.Println("🔎 Check out the user controller")
 }
 
-func (user *userController) GetProfile(ctx *gin.Context) {
-    fmt.Println("🔎 Check out the user controller")
+func (userctrl *userController) GetProfile(ctx *gin.Context) {
+  id, exists := ctx.Get("user_id")
+
+  if exists == false {
+    HttpResponse(ctx, http.StatusBadRequest, "Invalid User ID fetched", nil)
+    return
+  }
+
+  user, err := userctrl.us.GetUserByID(id.(uint))
+  if err != nil {
+    HttpResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
+    return
+  }
+
+  userOutput := userctrl.mapToUserOutput(user)
+  HttpResponse(ctx, http.StatusOK, "ok", userOutput)
+  return
 }
 
 func (userctrl *userController) GetUserByID(ctx *gin.Context) {

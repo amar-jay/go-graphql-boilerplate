@@ -107,20 +107,26 @@ func main() {
 		playground.ServeHTTP(c.Writer, c.Request) })
 	// http.Handle("/query", srv)
 
-	api := router.Group("/auth")
+	auth := router.Group("/auth")
 
-	api.POST("/register", userController.Register)
-	api.POST("/login",  userController.Login)
-	api.POST("/forgot-password", userController.ForgotPassword)
-	api.POST("/update-password", userController.ResetPassword)
+	auth.POST("/register", userController.Register)
+	auth.POST("/login",  userController.Login)
+	auth.POST("/forgot-password", userController.ForgotPassword)
+	auth.POST("/update-password", userController.ResetPassword)
 
-	user := api.Group("/user")
+	user := router.Group("/users")
 
 	user.GET("/:id", userController.GetUserByID)
 
 	// TODO: create accounts and profiles
+	account := router.Group("/account")
+	account.Use(middleware.RequireTobeloggedIn(config.JWTSecret))
+	{
+	account.GET("/profile", userController.GetProfile)
+	account.PUT("/profile", userController.Update)
+	}
 
-	// log.Printf("connect to http://loc alhost:%s/ for GraphQL playground", port)
+	log.Printf("Running on http://loc alhost:%d/ ", config.Port)
 	port := fmt.Sprintf(":%d", config.Port)
 	router.Run(port)
 }
