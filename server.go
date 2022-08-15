@@ -30,17 +30,17 @@ import (
 )
 
 const defaultPort = "8080"
+
 var (
 	router = gin.Default()
 )
+
 func main() {
 	fmt.Println("Starting server...")
 	router.SetTrustedProxies([]string{"192.168.1.2", "::1"})
 
 	// swagger url - http://localhost:8080/swagger/index.html
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-
 
 	// load env file
 	if err := godotenv.Load(); err != nil {
@@ -50,7 +50,7 @@ func main() {
 
 	db, err := gorm.Open(
 		config.Postgres.GetConnectionInfo(),
-		config.Postgres.Config(), 
+		config.Postgres.Config(),
 	)
 
 	if err != nil {
@@ -59,7 +59,7 @@ func main() {
 
 	// Migrate the schema
 	db.AutoMigrate(&user.User{})
-//	defer db.Close()
+	//	defer db.Close()
 	fmt.Println("Database migrated successfully")
 
 	router.GET("/", func(c *gin.Context) {
@@ -78,39 +78,39 @@ func main() {
 
 	/**
 	*  ----- Services -----
-	*/
-	userrepo  := user_repo.NewUserRepo(db)
+	 */
+	userrepo := user_repo.NewUserRepo(db)
 	pswdrepo := password_reset.CreatePasswordReserRepo(db)
 	randomstr := randomstring.CreateRandomString()
 	hash := hmachash.NewHMAC("dumb ass")
-	userService  := userservice.NewUserService(userrepo, pswdrepo, randomstr, hash, "pepper")
+	userService := userservice.NewUserService(userrepo, pswdrepo, randomstr, hash, "pepper")
 	authService := authservice.NewAuthService(config.JWTSecret)
-	emailService :=  emailservice.NewEmailService()
+	emailService := emailservice.NewEmailService()
 
 	/**
 	* ----- Controllers -----
-	*/
-
+	 */
 
 	userController := controllers.NewUserController(userService, authService, emailService)
 
 	/**
 	*  ----- Routing -----
-	*/
+	 */
 
 	// srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
-	playground :=handler.Playground("GraphQL playground", "/query")
-	router.GET("/graphql", func (c *gin.Context) { playground.ServeHTTP(c.Writer, c.Request) })
-	router.POST("/query", func (c *gin.Context) { 
+	playground := handler.Playground("GraphQL playground", "/query")
+	router.GET("/graphql", func(c *gin.Context) { playground.ServeHTTP(c.Writer, c.Request) })
+	router.POST("/query", func(c *gin.Context) {
 		middleware.SetUserContext(config.JWTSecret)
 		gql.GraphQLHandler(userService, authService, emailService)
-		playground.ServeHTTP(c.Writer, c.Request) })
+		playground.ServeHTTP(c.Writer, c.Request)
+	})
 	// http.Handle("/query", srv)
 
 	auth := router.Group("/auth")
 
 	auth.POST("/register", userController.Register)
-	auth.POST("/login",  userController.Login)
+	auth.POST("/login", userController.Login)
 	auth.POST("/forgot-password", userController.ForgotPassword)
 	auth.POST("/update-password", userController.ResetPassword)
 
@@ -122,8 +122,8 @@ func main() {
 	account := router.Group("/account")
 	account.Use(middleware.RequireTobeloggedIn(config.JWTSecret))
 	{
-	account.GET("/profile", userController.GetProfile)
-	account.PUT("/profile", userController.Update)
+		account.GET("/profile", userController.GetProfile)
+		account.PUT("/profile", userController.Update)
 	}
 
 	log.Printf("Running on http://loc alhost:%d/ ", config.Port)
