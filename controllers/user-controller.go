@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/amar-jay/go-api-boilerplate/domain/user"
 	"github.com/amar-jay/go-api-boilerplate/services/authservice"
@@ -72,14 +75,8 @@ func (userctrl *userController) Register(ctx *gin.Context) {
   // TODO: read the user input
   var userInput UserInput
   if err := ctx.ShouldBindJSON(&userInput); err != nil {
-    errSum := ErrorOutput{
-      Msg: err.Error(),
-      Summary: "Userinput Error",
-      Code: http.StatusBadRequest,
-    }
 
-    fmt.Println(errSum)
-    HttpResponse(ctx, http.StatusBadRequest, err.Error(), nil)
+  HttpResponse(ctx, http.StatusBadRequest, err.Error(), nil)
     return
   } 
 
@@ -119,8 +116,28 @@ func (user *userController) GetProfile(ctx *gin.Context) {
     fmt.Println("🔎 Check out the user controller")
 }
 
-func (user *userController) GetUserByID(ctx *gin.Context) {
-    fmt.Println("🔎 Check out the user controller")
+func (userctrl *userController) GetUserByID(ctx *gin.Context) {
+  id, err := userctrl.getUserID(ctx.Param("id"))
+
+  if err != nil {
+    HttpResponse(ctx, http.StatusBadRequest, err.Error(), nil)
+    return
+  }
+
+  user, err := userctrl.us.GetUserByID(id)
+  if err != nil {
+    e := err.Error()
+    if strings.Contains(e, "not found") {
+      HttpResponse(ctx, http.StatusNotFound, e, nil)
+      return
+  }
+  HttpResponse(ctx, http.StatusNotFound, e, nil)
+  return
+}
+
+  userOutput := userctrl.mapToUserOutput(user)
+  HttpResponse(ctx, http.StatusOK, "ok", userOutput)
+
 }
 
 /**
@@ -154,4 +171,15 @@ func (userctrl *userController) mapToUserOutput(input *user.User) *UserOutput {
    out := gin.H{"token": token, "user": userOutput}
    HttpResponse(ctx, http.StatusOK, "ok", out)
    return nil
+ }
+
+ // Get user by id using ID param
+ func (userctrl *userController) getUserID(IDparam string) (uint, error) {
+
+   userID, err := strconv.Atoi(IDparam)
+   if err != nil {
+     return 0, errors.New("user id should be a number")
+   }
+
+   return uint(userID), nil
  }

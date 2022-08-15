@@ -1,13 +1,17 @@
 package userservice
 
 import (
+	"errors"
 	"fmt"
+	"regexp"
 
 	"github.com/amar-jay/go-api-boilerplate/common/hmachash"
 	rdms "github.com/amar-jay/go-api-boilerplate/common/randomstring"
 	"github.com/amar-jay/go-api-boilerplate/domain/user"
 	pswd_repo "github.com/amar-jay/go-api-boilerplate/repositories/password_reset"
 	"github.com/amar-jay/go-api-boilerplate/repositories/user_repo"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
@@ -18,7 +22,7 @@ type UserService interface {
 
 type userService struct {
 	pepper string
-	repo user_repo.Repo
+	Repo user_repo.Repo
 	pswd pswd_repo.Repo
 	rs rdms.RandomString
 	hmac hmachash.HMAC 
@@ -27,7 +31,7 @@ type userService struct {
 func NewUserService(repo user_repo.Repo, pswd pswd_repo.Repo, rs rdms.RandomString, hmac hmachash.HMAC, pepper string ) UserService {
 
 	return &userService{
-		repo: repo,
+		Repo: repo,
 		pepper: pepper,
 		pswd: pswd,
 		rs: rs,
@@ -36,16 +40,76 @@ func NewUserService(repo user_repo.Repo, pswd pswd_repo.Repo, rs rdms.RandomStri
 }
 
 func (us *userService) Register(u *user.User) error {
-	return fmt.Errorf("USER SERVICE ERROR: Register not implemented")
+	hashed, err := us.HashPassword(u.Password)
+	if err != nil {
+		return err
+	}
+
+	u.Password = hashed
+	return us.Repo.CreateUser(u)
+	//return fmt.Errorf("USER SERVICE ERROR: Register not implemented")
 }
 
 func (us *userService) Update(u *user.User) error {
 	return fmt.Errorf("USER SERVICE ERROR: Update not implemented")
 }
 
+/**
+* ----- GET METHODS ---
+*/
 
 func (us *userService) GetUserByID(id uint) (*user.User, error) {
-	return nil, fmt.Errorf("USER SERVICE ERROR: GetUserBuID not implemented")
+	if id <= 0 {
+		return nil, errors.New("id params is required")
+	}
+	user, err := us.Repo.GetUserByID(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+	//return nil, fmt.Errorf("USER SERVICE ERROR: GetUserBuID not implemented")
 
 }
 
+func (us *userService) GetUserByEmail(email string) (*user.User, error) {
+	if email == "" {
+		return nil, errors.New("email params is required")
+	}
+	if err := validateEmail(email); err != nil {
+		return nil, err 
+	}
+
+	user, err := us.Repo.GetUserByEmail(email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+	//return nil, fmt.Errorf("USER SERVICE ERROR: GetUserBuID not implemented")
+
+}
+/**
+* -- Other
+*/
+
+func (us *userService) HashPassword(password string) (string, error) {
+	pswdAndPepper := password + us.pepper
+	hashed, err := bcrypt.GenerateFromPassword([]byte(pswdAndPepper), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashed), nil
+}
+
+func validateEmail(email string) error {
+	 emailRegex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+	  if !emailRegex.MatchString(email) {
+			return errors.New("invalid email param entered.")
+		}
+
+		return nil
+}

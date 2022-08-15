@@ -114,9 +114,9 @@ func main() {
 	api.POST("/forgot-password", userController.ForgotPassword)
 	api.POST("/update-password", userController.ResetPassword)
 
-	//user := api.Group("/user")
+	user := api.Group("/user")
 
-	//user.GET("/:id", userController.GetUserById)
+	user.GET("/:id", userController.GetUserByID)
 
 	// TODO: create accounts and profiles
 
