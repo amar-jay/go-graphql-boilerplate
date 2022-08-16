@@ -39,7 +39,7 @@ cp .env.example .env
 
 ## License
 
-You can do whatever you want with this code. It's free.
+[MIT LICENSED](./LICENSE)
 
 ## Contributing
 
