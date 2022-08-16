@@ -32,6 +32,11 @@ type UserOutput struct {
 
 }
 
+type UserUpdateInput struct {
+  FirstName string `json:"firstname"`
+  LastName string  `json:"lastname"`
+  Email string `json:"email"`
+}
 type ErrorOutput struct {
   Msg string `json:"message"`
   Summary string `json:"summary"`
@@ -98,19 +103,52 @@ func (userctrl *userController) Register(ctx *gin.Context) {
     return
   }
 }
-func (user *userController) Update(ctx *gin.Context) {
-  // TODO: read the user input
-  // TODO: get the user from the database 
-  // TODO: check password
-  // TODO: login the user 
-    fmt.Println("🔎 Check out the user service")
+func (userctrl *userController) Update(ctx *gin.Context) {
+  // read the user id
+  input, exists := ctx.Get("user_id")
+  if exists == false {
+    HttpResponse(ctx, http.StatusBadRequest, "Invalid user ID entered", nil)
+    return
+  }
+
+  // get the user from the database 
+  user, err := userctrl.us.GetUserByID(input.(uint))
+  if err != nil {
+    HttpResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
+    return
+  }
+  // Read user input
+  var userInput UserUpdateInput
+  if err := ctx.ShouldBindJSON(&userInput); err != nil {
+    HttpResponse(ctx, http.StatusBadRequest, err.Error(), nil)
+    return
+  }
+
+  // Check if user is true
+  if user.ID != input {
+    HttpResponse(ctx, http.StatusUnauthorized, "User Unauthorized", nil)
+    return
+  }
+
+  //  Update the user Record 
+  user.FirstName = userInput.FirstName
+  user.LastName = userInput.FirstName
+  user.Email = userInput.Email 
+  if err := userctrl.us.Update(user); err != nil {
+    HttpResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
+    return
+  }
+
+  // Reponse 
+  userOutput := userctrl.mapToUserOutput(user)
+  HttpResponse(ctx, http.StatusAccepted, "ok", userOutput)
 }
 func (user *userController) ResetPassword(ctx *gin.Context) {
-    fmt.Println("🔎 Check out the user controller")
+    fmt.Println("🔎 Reset Password controller not implemented")
 }
 
 func (user *userController) ForgotPassword(ctx *gin.Context) {
-    fmt.Println("🔎 Check out the user controller")
+    fmt.Println("🔎 Forgot Password controller not implemented")
 }
 
 func (userctrl *userController) GetProfile(ctx *gin.Context) {

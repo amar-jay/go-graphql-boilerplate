@@ -127,7 +127,7 @@ func main() {
 		account.PUT("/profile", userController.Update)
 	}
 
-	log.Printf("Running on http://loc alhost:%d/ ", config.Port)
+	log.Printf("Running on http://localhost:%d/ ", config.Port)
 	port := fmt.Sprintf(":%d", config.Port)
 	router.Run(port)
 }
