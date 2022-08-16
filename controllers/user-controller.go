@@ -74,7 +74,33 @@ func NewUserController(us userservice.UserService, as authservice.AuthService, e
 * ----- Routes -----
 */
 
-func (user *userController) Login(ctx *gin.Context) {
+func (userctrl *userController) Login(ctx *gin.Context) {
+
+  // TODO: Get user input 
+  var input UserInput
+
+  if err := ctx.ShouldBindJSON(&input); err != nil {
+    HttpResponse(ctx, http.StatusBadRequest, err.Error(), nil)
+    return
+  }
+
+  // TODO: Get User from Database  
+  user, err := userctrl.us.GetUserByEmail(input.Email)
+  if err != nil {
+    HttpResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
+  }
+
+  // TODO: Check Password 
+  err = userctrl.us.ComparePassword(input.Password, user.Password)
+  if err != nil {
+    HttpResponse(ctx, http.StatusBadRequest, err.Error(), nil)
+    return
+  }
+  // TODO: Login 
+  if err := userctrl.login(ctx, user); err != nil {
+    HttpResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
+    return
+  }
 }
 
 func (userctrl *userController) Register(ctx *gin.Context) {
@@ -96,6 +122,9 @@ func (userctrl *userController) Register(ctx *gin.Context) {
   }
 
   // TODO: send a welcome message
+  if err := userctrl.es.Welcome(u.Email); err != nil {
+    HttpResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
+  }
 
   //  login the user
   if err := userctrl.login(ctx, &u); err != nil {
@@ -103,6 +132,7 @@ func (userctrl *userController) Register(ctx *gin.Context) {
     return
   }
 }
+
 func (userctrl *userController) Update(ctx *gin.Context) {
   // read the user id
   input, exists := ctx.Get("user_id")

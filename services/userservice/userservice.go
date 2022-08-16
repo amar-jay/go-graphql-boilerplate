@@ -1,7 +1,6 @@
 package userservice
 
 import (
-	"errors"
 	"regexp"
 
 	"github.com/amar-jay/go-api-boilerplate/common/hmachash"
@@ -14,9 +13,11 @@ import (
 )
 
 type UserService interface {
+		ComparePassword(inputpswd string, dbpswd string) error
 		Register(user *user.User) error
 		Update(user *user.User) error
 		GetUserByID(id uint) (*user.User, error)
+		GetUserByEmail(email string) (*user.User, error)
 		GetUsers() ([]*user.User, error)
 }
 
@@ -120,6 +121,14 @@ func (us *userService) HashPassword(password string) (string, error) {
 	return string(hashed), nil
 }
 
+
+func (us *userService) ComparePassword(inputpswd string, dbpswd string) error {
+
+	return bcrypt.CompareHashAndPassword(
+		[]byte(dbpswd),
+		[]byte(inputpswd+us.pepper),
+	)
+}
 func validateEmail(email string) error {
 	 emailRegex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
@@ -129,3 +138,4 @@ func validateEmail(email string) error {
 
 		return nil
 }
+

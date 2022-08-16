@@ -1,8 +1,8 @@
 package emailservice
 
-import (
-	// "github.com/amar-jay/go_api_boilerplate/infra/mailgunclient"
-)
+import "errors"
+
+// "github.com/amar-jay/go_api_boilerplate/infra/mailgunclient"
 type EmailService interface {
 	Welcome(toEmail string) error
 	ResetPassword(toEmail string, token string) error
@@ -18,7 +18,7 @@ func NewEmailService() EmailService {
 
 //Welcome email
 func (s *emailService) Welcome(toEmail string) error {
-	return nil
+	return errors.New("Not implemented")
 }
 
 
