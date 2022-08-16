@@ -83,7 +83,7 @@ func main() {
 	pswdrepo := password_reset.CreatePasswordReserRepo(db)
 	randomstr := randomstring.CreateRandomString()
 	hash := hmachash.NewHMAC("dumb ass")
-	userService := userservice.NewUserService(userrepo, pswdrepo, randomstr, hash, "pepper")
+	userService := userservice.NewUserService(userrepo, pswdrepo, randomstr, hash, config.Pepper)
 	authService := authservice.NewAuthService(config.JWTSecret)
 	emailService := emailservice.NewEmailService()
 

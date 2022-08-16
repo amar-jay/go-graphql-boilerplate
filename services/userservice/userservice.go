@@ -2,7 +2,6 @@ package userservice
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 
 	"github.com/amar-jay/go-api-boilerplate/common/hmachash"
@@ -51,8 +50,13 @@ func (us *userService) Register(u *user.User) error {
 	//return fmt.Errorf("USER SERVICE ERROR: Register not implemented")
 }
 
+/**
+* ----- UPDATE METHODS ---
+*/
+
+
 func (us *userService) Update(u *user.User) error {
-	return fmt.Errorf("USER SERVICE ERROR: Update not implemented")
+	return us.Repo.Update(u)
 }
 
 /**
@@ -83,7 +87,6 @@ func (us *userService) GetUserByID(id uint) (*user.User, error) {
 	}
 
 	return user, nil
-	//return nil, fmt.Errorf("USER SERVICE ERROR: GetUserBuID not implemented")
 
 }
 
@@ -102,7 +105,6 @@ func (us *userService) GetUserByEmail(email string) (*user.User, error) {
 	}
 
 	return user, nil
-	//return nil, fmt.Errorf("USER SERVICE ERROR: GetUserBuID not implemented")
 
 }
 /**
