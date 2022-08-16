@@ -18,6 +18,7 @@ type UserService interface {
 		Register(user *user.User) error
 		Update(user *user.User) error
 		GetUserByID(id uint) (*user.User, error)
+		GetUsers() ([]*user.User, error)
 }
 
 type userService struct {
@@ -58,6 +59,19 @@ func (us *userService) Update(u *user.User) error {
 * ----- GET METHODS ---
 */
 
+func (us *userService) GetUsers() ([]*user.User, error) {
+	users, err := us.Repo.GetUsers()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if users == nil {
+		return nil, errors.New("There is no user") 
+	}
+
+	return users, nil
+}
 func (us *userService) GetUserByID(id uint) (*user.User, error) {
 	if id <= 0 {
 		return nil, errors.New("id params is required")

@@ -47,6 +47,7 @@ type UserController interface {
   login(ctx *gin.Context, u *user.User) error
   Login(ctx *gin.Context)
   GetUserByID(*gin.Context)
+  GetUsers(*gin.Context)
   GetProfile(*gin.Context)
   ResetPassword(*gin.Context)
   ForgotPassword(*gin.Context)
@@ -128,6 +129,18 @@ func (userctrl *userController) GetProfile(ctx *gin.Context) {
 
   userOutput := userctrl.mapToUserOutput(user)
   HttpResponse(ctx, http.StatusOK, "ok", userOutput)
+  return
+}
+
+func (userctrl *userController) GetUsers(ctx *gin.Context) {
+
+  users, err := userctrl.us.GetUsers()
+  if err != nil {
+    HttpResponse(ctx, http.StatusNotFound, err.Error(), nil)
+    return
+  }
+
+  HttpResponse(ctx, http.StatusOK, "ok", users)
   return
 }
 

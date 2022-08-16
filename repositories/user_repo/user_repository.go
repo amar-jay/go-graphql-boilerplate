@@ -8,6 +8,7 @@ import (
 // Repository interface
 type Repo interface {
   GetUserByID(id uint) (*user.User, error)
+  GetUsers() ([]*user.User, error) 
   GetUserByEmail(email string) (*user.User, error)
   CreateUser(user *user.User) error
   Update(user *user.User) error
@@ -24,6 +25,14 @@ func NewUserRepo(db *gorm.DB) Repo {
   }
 }
 
+func (repo *userRepo) GetUsers() ([]*user.User, error) {
+  var users []*user.User
+  if err:= repo.db.Find(&users).Error; err != nil {
+    return nil, err
+  }
+
+  return users, nil
+}
 // get first user by id
 func (repo *userRepo) GetUserByID(id uint) (*user.User, error) {
   var user user.User

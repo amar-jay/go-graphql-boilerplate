@@ -116,6 +116,7 @@ func main() {
 
 	user := router.Group("/users")
 
+	user.GET("/", userController.GetUsers)
 	user.GET("/:id", userController.GetUserByID)
 
 	// TODO: create accounts and profiles
