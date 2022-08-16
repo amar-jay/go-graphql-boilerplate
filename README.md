@@ -27,7 +27,7 @@ cp .env.example .env
 - [ ] Unit Tests
 - [ ] Email Notification
 - [ ] Authentication with Google, Facebook, Twitter
-- [ ] Path: docs/README.md 
+- [ ] Github Actions
 
 ## Resources
 
