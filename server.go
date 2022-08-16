@@ -98,12 +98,11 @@ func main() {
 	 */
 
 	// srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
-	playground := handler.Playground("GraphQL playground", "/query")
-	router.GET("/graphql", func(c *gin.Context) { playground.ServeHTTP(c.Writer, c.Request) })
+	//playground := handler.Playground("GraphQL playground", "/query")
+	router.GET("/graphql",  gql.PlaygroundHandler("/query"))
 	router.POST("/query", func(c *gin.Context) {
 		middleware.SetUserContext(config.JWTSecret)
 		gql.GraphQLHandler(userService, authService, emailService)
-		playground.ServeHTTP(c.Writer, c.Request)
 	})
 	// http.Handle("/query", srv)
 
@@ -119,7 +118,7 @@ func main() {
 	user.GET("/", userController.GetUsers)
 	user.GET("/:id", userController.GetUserByID)
 
-	// TODO: create accounts and profiles
+	//  accounts and profiles
 	account := router.Group("/account")
 	account.Use(middleware.RequireTobeloggedIn(config.JWTSecret))
 	{
@@ -127,6 +126,7 @@ func main() {
 		account.PUT("/profile", userController.Update)
 	}
 
+	// Run server
 	log.Printf("Running on http://localhost:%d/ ", config.Port)
 	port := fmt.Sprintf(":%d", config.Port)
 	router.Run(port)

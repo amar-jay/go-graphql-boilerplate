@@ -171,14 +171,20 @@ func (userctrl *userController) GetProfile(ctx *gin.Context) {
 }
 
 func (userctrl *userController) GetUsers(ctx *gin.Context) {
-
+  var usersOut []*UserOutput
   users, err := userctrl.us.GetUsers()
+  // map each user to usersOut
+  for _, user := range users {
+  out :=  userctrl.mapToUserOutput(user)
+  usersOut = append(usersOut, out)
+  }
+
   if err != nil {
     HttpResponse(ctx, http.StatusNotFound, err.Error(), nil)
     return
   }
 
-  HttpResponse(ctx, http.StatusOK, "ok", users)
+  HttpResponse(ctx, http.StatusOK, "ok", usersOut)
   return
 }
 

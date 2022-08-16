@@ -26,3 +26,12 @@ func GraphQLHandler(us userservice.UserService, as authservice.AuthService, es e
     h.ServeHTTP(ctx.Writer, ctx.Request)
   }
 }
+
+
+// PlaygroundHandler defined the playground handler to expose
+func PlaygroundHandler(path string) gin.HandlerFunc {
+  h := handler.Playground("GraphQL  Playground", path)
+  return func(ctx *gin.Context) {
+    h.ServeHTTP(ctx.Writer, ctx.Request)
+  }
+}
