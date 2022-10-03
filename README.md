@@ -17,17 +17,19 @@ cp .env.example .env
 
 ## Features to be added
 
+- [ ] CLI
 - [x] GraphQL API
 - [x] REST API
+- [ ] gRPC
 - [ ] Swagger
-- [x] JWT Authentication
+- [ ] JWT Authentication - **In progress**
 - [x] GORM (Golang DB ORM) - PostgreSQL
-- [ ] Redis
 - [ ] Docker
 - [ ] Unit Tests
 - [ ] Email Notification
-- [ ] Authentication with Google, Facebook, Twitter
-- [ ] Github Actions
+- [ ] Authentication with Email,Google, Facebook, Twitter
+- [ ] CI - Github Actions
+
 
 ## Resources
 
