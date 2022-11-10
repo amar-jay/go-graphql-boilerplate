@@ -1,33 +1,26 @@
-# A complete go api boilerplate
+# Go Api Boilerplate
+A go API stack with rest, graphql and grpc integration meant for fast and quick backend build.  
 
 ## Guide
 
-- clone repo and install deps
+This project is under construction at the moment 🚧
 
-```bash
-git clone
-go mod tidy
-```
-
-- create a .env file in the format in .env.example
-
-```bash
-cp .env.example .env
-```
 
 ## Features to be added
 
+- [ ] CLI
 - [x] GraphQL API
 - [x] REST API
+- [ ] gRPC
 - [ ] Swagger
-- [x] JWT Authentication
+- [ ] JWT Authentication - **In progress**
 - [x] GORM (Golang DB ORM) - PostgreSQL
-- [ ] Redis
 - [ ] Docker
 - [ ] Unit Tests
 - [ ] Email Notification
-- [ ] Authentication with Google, Facebook, Twitter
-- [ ] Github Actions
+- [ ] Authentication with Email,Google, Facebook, Twitter
+- [ ] CI - Github Actions
+
 
 ## Resources
 
