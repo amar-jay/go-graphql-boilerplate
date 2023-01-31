@@ -49,7 +49,7 @@ func getPort(input string) int {
 		panic(err)
 	}
 	if port < 1000 {
-		panic(fmt.Errorf("Invalid port number: %d", port))
+		panic(fmt.Errorf("invalid port number: %d", port))
 	}
 
 	return port

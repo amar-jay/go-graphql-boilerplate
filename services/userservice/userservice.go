@@ -1,6 +1,7 @@
 package userservice
 
 import (
+	"errors"
 	"regexp"
 
 	"github.com/amar-jay/go-api-boilerplate/common/hmachash"
@@ -72,7 +73,7 @@ func (us *userService) GetUsers() ([]*user.User, error) {
 	}
 
 	if users == nil {
-		return nil, errors.New("There is no user") 
+		return nil, errors.New("there is no user") 
 	}
 
 	return users, nil
@@ -133,7 +134,7 @@ func validateEmail(email string) error {
 	 emailRegex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 	  if !emailRegex.MatchString(email) {
-			return errors.New("invalid email param entered.")
+			return errors.New("invalid email param entered")
 		}
 
 		return nil

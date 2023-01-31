@@ -1,6 +1,7 @@
 package mailgunclient
 
 import (
+	"github.com/amar-jay/go-api-boilerplate/config"
 	"github.com/mailgun/mailgun-go/v4"
 )
 
@@ -18,5 +19,9 @@ type mailgunClient struct {
 }
 
 func NewMailgunClient(c config.Config) *mailgunClient {
-  return &mailgunclient{}
+  mg_conf := config.GetMailgunConfig()
+  return &mailgunClient{conf: c, client: mailgun.NewMailgun(
+    mg_conf.Domain,
+    mg_conf.APIKey,
+    )}
 }

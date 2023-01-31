@@ -6,10 +6,9 @@ import (
 	"net/http"
 
 	//"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/99designs/gqlgen/handler"
+	//"github.com/99designs/gqlgen/handler"
 	"github.com/gin-gonic/gin"
 
-	//"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -29,7 +28,6 @@ import (
 	"github.com/amar-jay/go-api-boilerplate/services/userservice"
 )
 
-const defaultPort = "8080"
 
 var (
 	router = gin.Default()
@@ -37,10 +35,11 @@ var (
 
 func main() {
 	fmt.Println("Starting server...")
-	router.SetTrustedProxies([]string{"192.168.1.2", "::1"})
+	// To allow only trusted proxies  
+	//router.SetTrustedProxies([]string{"192.168.1.2", "::1"})
 
 	// swagger url - http://localhost:8080/swagger/index.html
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	  router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// load env file
 	if err := godotenv.Load(); err != nil {
@@ -58,7 +57,7 @@ func main() {
 	}
 
 	// Migrate the schema
-	db.AutoMigrate(&user.User{})
+	log.Fatal(db.AutoMigrate(&user.User{}))
 	//	defer db.Close()
 	fmt.Println("Database migrated successfully")
 
@@ -100,7 +99,7 @@ func main() {
 	// srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 	//playground := handler.Playground("GraphQL playground", "/query")
 	router.GET("/graphql",  gql.PlaygroundHandler("/query"))
-	router.POST("/query", func(c *gin.Context) {
+	router.POST("/query", func(_ *gin.Context) {
 		middleware.SetUserContext(config.JWTSecret)
 		gql.GraphQLHandler(userService, authService, emailService)
 	})
@@ -129,5 +128,5 @@ func main() {
 	// Run server
 	log.Printf("Running on http://localhost:%d/ ", config.Port)
 	port := fmt.Sprintf(":%d", config.Port)
-	router.Run(port)
+	log.Fatal(router.Run(port))
 }
